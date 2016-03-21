@@ -8,6 +8,8 @@ Execute runnable ELP.jar desktop application, or import the project into eclipse
 - Java 8 
 - magyarlánc 3.0 (download from http://www.inf.u-szeged.hu/rgai/magyarlanc)
 - API key for Europeana's REST API. (Get an API key here: http://labs.europeana.eu/api/registration)
+ 
+It is safer to run ELP with bigger heap memory. E.g.: java -Xmx1G -jar ELP.jar
 
  
 ### Program Usage
