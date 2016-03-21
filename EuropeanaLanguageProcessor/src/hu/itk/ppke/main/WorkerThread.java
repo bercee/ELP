@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -222,6 +224,12 @@ public class WorkerThread extends Thread {
 				engine.appendResult("");
 				for (String s : engine.magyarlanc.getFullInfo())
 					engine.appendResult(s);
+//				
+//				LinkedHashMap<String, Integer> wordMap = engine.magyarlanc.getWordMap();
+//				wordMap.entrySet().stream()
+//				.sorted(Map.Entry.comparingByValue((i1,i2)->Integer.compare(i2, i1)))
+//				.forEach(e -> engine.appendResult(e.getKey() + "   ---   " + e.getValue()));
+				
 			}
 			
 			

@@ -15,10 +15,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import javax.swing.SwingWorker;
 
@@ -211,7 +213,23 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 		return list;
 	}
 	
-
+	public LinkedHashMap<String, Integer> getWordMap(){
+		LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+		
+		
+		for (String lemma : words.map.keySet()){
+			
+			for (String lexForm : words.map.get(lemma).formsTable.keySet()){
+				HashMap<Integer, Integer> freqMap = words.map.get(lemma).formsTable.get(lexForm);
+				int count = 0;
+				for (Integer i : freqMap.keySet())
+					count+=freqMap.get(i);
+				map.put(lexForm, count);
+			}
+		}
+		
+		return map;
+	}
 
 	@Override
 	protected WordCollection doInBackground() throws Exception {
@@ -266,22 +284,51 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 		l.add("\t\t[contanied in in object] - [how many times]");
 		l.add("");
 		
-		for (String lemma : words.map.keySet()){
-			Pattern p = Pattern.compile("^[a-zA-Z]");
-			Matcher m = p.matcher(lemma);
-			if (!m.find())
-				continue;
-			l.add(lemma);
-			Word word = words.map.get(lemma);
-			HashMap<String, HashMap<Integer, Integer>> lexForms = word.formsTable;
-			for (String form : lexForms.keySet()){
-				l.add(new StringBuilder("\t").append(form).toString());
-				for (Integer objNum : lexForms.get(form).keySet()){
-					l.add(new StringBuilder("\t\t").append(objNum).append(" - ").append(lexForms.get(form).get(objNum)).toString());
+		words.map.entrySet().stream()
+		.sorted(new Comparator<Entry<String, Word>>() {
+
+			@Override
+			public int compare(Entry<String, Word> o1, Entry<String, Word> o2) {
+				return Integer.compare(o2.getValue().getAllOccurrenceNum(), o1.getValue().getAllOccurrenceNum());
+			}
+		}).forEach(new Consumer<Entry<String,Word>>() {
+
+			@Override
+			public void accept(Entry<String, Word> t) {
+				String lemma = t.getKey();
+//				Pattern p = Pattern.compile("^[a-zA-Z]");
+//				Matcher m = p.matcher(lemma);
+//				if (!m.find())
+//					return;
+				l.add(lemma + "  (" + t.getValue().getAllOccurrenceNum()+")");
+				Word word = words.map.get(lemma);
+				HashMap<String, HashMap<Integer, Integer>> lexForms = word.formsTable;
+				for (String form : lexForms.keySet()){
+					l.add(new StringBuilder("\t").append(form).toString());
+					for (Integer objNum : lexForms.get(form).keySet()){
+						l.add(new StringBuilder("\t\t").append(objNum).append(" - ").append(lexForms.get(form).get(objNum)).toString());
+					}
 				}
 			}
-			
-		}
+		});
+		
+		
+//		for (String lemma : words.map.keySet()){
+//			Pattern p = Pattern.compile("^[a-zA-Z]");
+//			Matcher m = p.matcher(lemma);
+//			if (!m.find())
+//				continue;
+//			l.add(lemma);
+//			Word word = words.map.get(lemma);
+//			HashMap<String, HashMap<Integer, Integer>> lexForms = word.formsTable;
+//			for (String form : lexForms.keySet()){
+//				l.add(new StringBuilder("\t").append(form).toString());
+//				for (Integer objNum : lexForms.get(form).keySet()){
+//					l.add(new StringBuilder("\t\t").append(objNum).append(" - ").append(lexForms.get(form).get(objNum)).toString());
+//				}
+//			}
+//			
+//		}
 		
 		return l;
 	}

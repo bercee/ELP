@@ -8,6 +8,7 @@ public class WordCollection {
 	
 	TreeMap<String, Word> map = new TreeMap<String, Word>();
 	
+	
 	public synchronized void addNew(String lemma, String lexicalForm, int objNum){
 		Word w = map.get(lemma);
 		if (w == null){
@@ -17,6 +18,8 @@ public class WordCollection {
 		}
 		
 	}
+	
+
 	
 	public synchronized int getSize() {
 		return map.size();
@@ -66,6 +69,7 @@ public class WordCollection {
 	}
 	
 	class Word {
+		private int c;
 		String lemma;
 //		private HashSet<String> forms = new HashSet<String>();
 		HashMap<String, HashMap<Integer, Integer>> formsTable = new HashMap<String, HashMap<Integer, Integer>>();
@@ -94,6 +98,14 @@ public class WordCollection {
 				map.put(objNum, 1);
 				formsTable.put(lexForm, map);
 			}
+		}
+		
+		public int getAllOccurrenceNum(){
+			c = 0;
+			
+			formsTable.entrySet().stream().forEach(e -> e.getValue().entrySet().stream().forEach(ee -> c+=ee.getValue()));
+			
+			return c;
 		}
 	}
 	
