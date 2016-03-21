@@ -185,7 +185,9 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 		firePropertyChange("progress", 1, 0);
 		
 		String urlString = link.replaceAll(API, apikey);
-		urlString = urlString.replaceAll(QUERY, URLEncoder.encode(query, "UTF-8"));
+//		urlString = urlString.replaceAll(QUERY, URLEncoder.encode(query, "UTF-8"));
+		urlString = urlString.replaceAll(QUERY,query);
+		
 		StringBuilder sb = new StringBuilder();
 		for (String s : refinement){
 			sb.append("&").append(s);

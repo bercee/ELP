@@ -142,7 +142,7 @@ public class GUI {
 	{
 		descrSelectIn.label2.setText("from");
 	}
-	Selection descrSelectOut = new Selection("Descirption output:", Descriptions.OutputFormat.values());
+	Selection descrSelectOut = new Selection("Description output:", Descriptions.OutputFormat.values());
 	
 	JPanel descriptionPanel = new JPanel();
 
@@ -188,7 +188,7 @@ public class GUI {
 
 	
 
-	JFrame frame = new JFrame("EDM Language Processor");
+	JFrame frame = new JFrame("Europeana Language Processor");
 	JScrollPane fullPane;
 	
 	{
