@@ -3,6 +3,7 @@ package hu.itk.ppke.main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -200,7 +201,7 @@ public class WorkerThread extends Thread {
 					JOptionPane.showMessageDialog(gui.frame, "Error during NLP. Check magyarlánc's path.",
 							"NLP", JOptionPane.ERROR_MESSAGE);
 					throw e1;
-				}
+				} 
 
 				engine.magyarlanc.addPropertyChangeListener(e -> {
 					if (e.getPropertyName().equals("progress"))
@@ -210,6 +211,11 @@ public class WorkerThread extends Thread {
 				try {
 					engine.magyarlanc.execute();
 					engine.wordCollection = engine.magyarlanc.get();
+				} catch (OutOfMemoryError e1){
+					JOptionPane.showMessageDialog(gui.frame, "Out of memory. You need more heap space.", "NLP",
+							JOptionPane.ERROR_MESSAGE);
+					e1.printStackTrace();
+				
 				} catch (InterruptedException e1) {
 					throw e1;
 				} catch (ExecutionException e1) {
@@ -224,6 +230,20 @@ public class WorkerThread extends Thread {
 				engine.appendResult("");
 				for (String s : engine.magyarlanc.getFullInfo())
 					engine.appendResult(s);
+				
+				
+				
+				if (engine.gui.nlpSelectionOut.combo.getSelectedItem().equals(MagyarlancRunner.Output.Full)){
+					File out = new File(engine.gui.nlpSelectionOut.field.getText());
+					PrintWriter pw = new PrintWriter(out);
+					for (String s : engine.magyarlanc.getBasicInfo())
+						pw.println(s);
+					for (String s : engine.magyarlanc.getFullInfo())
+						pw.println(s);
+					pw.flush();
+					pw.close();
+					
+				}
 //				
 //				LinkedHashMap<String, Integer> wordMap = engine.magyarlanc.getWordMap();
 //				wordMap.entrySet().stream()

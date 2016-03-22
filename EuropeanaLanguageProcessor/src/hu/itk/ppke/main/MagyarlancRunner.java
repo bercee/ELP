@@ -35,7 +35,8 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 	}
 	
 	public enum Output{
-		Basic, 
+		Full,
+	//	Basic, 
 		None;
 	}
 

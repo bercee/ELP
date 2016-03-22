@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -104,6 +105,7 @@ public class GUI {
 	JFileChooser jfc = new JFileChooser();
 	{
 		jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		jfc.setCurrentDirectory(new File("."));
 	}
 	
 	final GUIEngine engine = new GUIEngine(this);

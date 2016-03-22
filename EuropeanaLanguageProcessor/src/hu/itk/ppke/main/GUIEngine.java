@@ -29,10 +29,10 @@ public class GUIEngine {
 	}
 
 	void stop() {
-		System.out.println("stop clicked");
-		System.out.println(worker == null);
+//		System.out.println("stop clicked");
+//		System.out.println(worker == null);
 		if (worker != null){
-			System.out.println("stopping worker...");
+//			System.out.println("stopping worker...");
 			worker.cancel();
 			worker = null;
 		}

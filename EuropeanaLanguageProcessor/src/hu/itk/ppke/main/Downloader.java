@@ -56,6 +56,7 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 		
 	//results
 	private volatile int totalResults;
+	private volatile int currentRes = 0;
 	private JSONArray result = new JSONArray();
 	private int count;
 	
@@ -259,8 +260,12 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 			synchronized (result) {
 				result.addAll(r.getItems());
 			}
-			if (format != OutputFormat.None)
+			currentRes+=r.getItems().size();
+//			System.out.println(currentRes);
+			if (format != OutputFormat.None){
 				printResults(r);
+				result.clear();
+			}
 			for (Object o : r.getItems()) {
 				if (o instanceof JSONObject) {
 					JSONObject e = (JSONObject) o;
@@ -272,13 +277,15 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 				// getProgress() != 100)
 				// firePropertyChange("progress", getProgress()+1,
 				// result.size()*100 / totalResults);
-				setProgress(result.size() * 100 / totalResults); // set the new
+				setProgress(currentRes * 100 / totalResults); // set the new
 																	// progress
 			}else {
 				setProgress(100);
 				publish("No items found.");
 				
 			}
+			
+
 			nextCursor = (String) r.get(JSONObjectReader.NEXT_CURSOR);
 			if (nextCursor == null)
 				nextCursor = "";
@@ -372,9 +379,7 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 	 * @return current number of results
 	 */
 	public int getCurrentResults(){
-		synchronized (result) {
-			return result.size();
-		}
+		return currentRes;
 	}
 
 	@Override
