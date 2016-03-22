@@ -3,6 +3,7 @@ package hu.itk.ppke.main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 	private File out;
 	private JSONArray objects = new JSONArray();
 	private List<String> desciptions = new ArrayList<String>();
+	private int outCount = 0;
 
 
 	private OutputFormat format = OutputFormat.OneFile;
@@ -172,7 +174,7 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 //		return objects.size();
 //	}
 	
-	private void extractDescriptions() {
+	private void extractDescriptions() throws IOException   {
 		for (Object o : objects) {
 			StringBuilder sb = new StringBuilder();
 			if (o instanceof JSONObject) {
@@ -190,6 +192,10 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 				}
 			}
 			desciptions.add(sb.toString());
+			if (!format.equals(OutputFormat.None)){
+				writeInfo();
+				desciptions.clear();
+			}
 		}
 	}
 	@Override
@@ -199,9 +205,8 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 		publish("Parsing metadata...");
 		extractDescriptions();
 		publish("Parsing done.");
-		writeInfo();
-		if (!format.equals(OutputFormat.None))
-			publish("Description is written to the output.");
+		
+		
 		return desciptions;
 	}
 	
@@ -232,10 +237,10 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 	 * dcDescriptionLangAware. If its not found either, than an empty string will be written.
 	 * @throws FileNotFoundException if it is not possible to write to the output
 	 */
-	public void writeInfo() throws FileNotFoundException {
+	public void writeInfo() throws IOException {
 		if (format == OutputFormat.OneFile) {
 			
-			PrintWriter pw = new PrintWriter(out);
+			PrintWriter pw = new PrintWriter(new FileWriter(out, true));
 			
 			for (String s : desciptions){
 				pw.println(s);
@@ -263,9 +268,9 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 //			}
 			pw.close();
 		} else if (format == OutputFormat.SeparateFiles) {
-			int count = 0;
+			
 			for (String s : desciptions){
-				PrintWriter pw = new PrintWriter(new File(out, "Desciption_" + (count++) + ".txt"));
+				PrintWriter pw = new PrintWriter(new File(out, "Desciption_" + (outCount++) + ".txt"));
 				pw.println(s);
 				pw.close();
 			}
@@ -291,6 +296,9 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 //				pw.close();
 //			}
 		}
+		
+		if (!format.equals(OutputFormat.None))
+			publish("Description is written to the output.");
 
 	}
 

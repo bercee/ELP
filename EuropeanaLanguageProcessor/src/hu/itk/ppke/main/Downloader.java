@@ -222,10 +222,10 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 		do{
 			URL url = new URL(urlString);
 			URLConnection c = url.openConnection();
-//			int i = 1;
+			int i = 1;
 			BufferedReader br = null;
-//			while (i <= 3){
-//				try{
+			while (i <= 3){
+				try{
 					InputStream is = null;
 					is = c.getInputStream();
 					br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
@@ -235,14 +235,18 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 //						publish(e.getMessage());
 //						throw new Exception("Check API key", e);
 //					}
-//				}
-//				catch (Exception e){
-//					i++;
-//					e.printStackTrace();
-//					publish(e.getMessage());
-//					publish("Trying again...");
-//				}
-//			}
+				}
+				catch (Exception e){
+					if (i == 3){
+						publish(urlString);
+						throw e;
+					}
+					i++;
+					e.printStackTrace();
+					publish(e.getMessage());
+					publish("Trying again...");
+				}
+			}
 			// String line = br.readLine();
 			// if (line == null)
 			// break;
