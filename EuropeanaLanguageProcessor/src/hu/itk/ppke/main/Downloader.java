@@ -239,8 +239,10 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 				catch (Exception e){
 					if (i == 3){
 						publish(urlString);
+						publish(url.toString());
 						throw e;
 					}
+					Thread.sleep(5000);
 					i++;
 					e.printStackTrace();
 					publish(e.getMessage());
