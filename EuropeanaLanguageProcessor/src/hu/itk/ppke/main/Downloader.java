@@ -59,6 +59,7 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 	private volatile int currentRes = 0;
 	private JSONArray result = new JSONArray();
 	private int count;
+	private String firstCursor = "*";
 	
 //	{
 //		addPropertyChangeListener(new PropertyChangeListener() {
@@ -178,6 +179,13 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 		this.refinement = refinement;
 	}
 	
+	public Downloader(String apikey, String query, String[] refinement, File outfile, OutputFormat format, String nextCursor, int start) throws IOException {
+		this(apikey, query, refinement, outfile, format);
+		currentRes = start;
+		firstCursor = nextCursor;
+		
+	}
+	
 	
 
 	@SuppressWarnings("unchecked")
@@ -194,7 +202,7 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 			sb.append("&").append(s);
 		}
 		urlString = urlString.replaceAll(REFINEMENTS, sb.toString());
-		urlString = urlString.replaceAll(CURSOR, "*");
+		urlString = urlString.replaceAll(CURSOR, firstCursor);
 		String nextCursor = "";
 		
 		publish("Start download...");
@@ -218,7 +226,7 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 			break;
 		}
 
-		int count = 1;
+		int count = currentRes+1;
 		do{
 			URL url = new URL(urlString);
 			URLConnection c = url.openConnection();

@@ -150,6 +150,10 @@ public class GUI {
 	JTextField qfF2 = new JTextField();
 	
 	Selection downloadSelect = new Selection("Output:", Downloader.OutputFormat.values());
+	JLabel cursorL = new JLabel("First cursor:");
+	JTextField cursorF = new JTextField("*");
+	JLabel startL = new JLabel("Start at:");
+	JTextField startF = new JTextField("0");
 	
 	JPanel downloadPanel = new JPanel();
 	
@@ -160,6 +164,8 @@ public class GUI {
 		downloadComponents.add(qfF1);
 		downloadComponents.add(qfF2);
 		downloadComponents.add(downloadSelect);
+		downloadComponents.add(cursorF);
+		downloadComponents.add(startF);
 	}
 	
 	
@@ -232,6 +238,8 @@ public class GUI {
 		setPrefWidth(apiF, 150);
 		setPrefWidth(qfF1, 150);
 		setPrefWidth(qfF2, 50);
+		setPrefWidth(cursorF, 300);
+		setPrefWidth(startF, 50);
 		
 		downloadBox.setSelected(true);
 		downloadBox.addActionListener(e -> {boolean b = downloadBox.isSelected(); 
@@ -241,9 +249,11 @@ public class GUI {
 		downloadPanel.add(new Row(apiL, apiF));
 		downloadPanel.add(new Row(queryL,queryF));
 		downloadPanel.add(new Row(qfL, qfF1, qfL2, qfF2));
+		downloadPanel.add(new Row(cursorL,cursorF, startL, startF));
 		downloadPanel.add(downloadSelect);
 		downloadSelect.combo.setSelectedItem(Downloader.OutputFormat.None);
 		downloadPanel.setBorder(BorderFactory.createTitledBorder("Download"));
+		
 		
 		//Description panel
 		descriptionBox.setSelected(true);

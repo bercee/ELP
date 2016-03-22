@@ -56,8 +56,16 @@ public class WorkerThread extends Thread {
 				}
 
 				try {
+					int start = 0;
+					if (!gui.startF.getText().trim().equals("")){
+						start = Integer.parseInt(engine.gui.startF.getText().trim());
+					}
+					String cursor = "*";
+					if (!gui.cursorF.getText().trim().equals("")){
+						cursor = gui.cursorF.getText().trim();
+					}
 					engine.downloader = new Downloader(gui.apiF.getText(), query, qfs, downOut,
-							(Downloader.OutputFormat) gui.downloadSelect.combo.getSelectedItem()) {
+							(Downloader.OutputFormat) gui.downloadSelect.combo.getSelectedItem(), cursor, start) {
 						@Override
 						protected void process(List<String> chunks) {
 							for (String s : chunks) {
@@ -65,7 +73,13 @@ public class WorkerThread extends Thread {
 							}
 						}
 					};
-				} catch (IOException e1) {
+				}catch (NumberFormatException e1){
+					JOptionPane.showMessageDialog(gui.frame,
+							"Invalid start number.", "Download",
+							JOptionPane.ERROR_MESSAGE);
+					throw e1;
+				}
+				catch (IOException e1) {
 					JOptionPane.showMessageDialog(gui.frame,
 							"IO error while dowloading. Check input and output files.", "Download",
 							JOptionPane.ERROR_MESSAGE);
