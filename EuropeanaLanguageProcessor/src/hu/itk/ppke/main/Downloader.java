@@ -229,7 +229,7 @@ public class Downloader extends SwingWorker<JSONArray, String>{
 					InputStream is = null;
 					is = c.getInputStream();
 					br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-//					 i = 4;
+					 i = 4;
 //				}catch(IOException e){
 //					if (e.getMessage().contains("HTTP response code: 403")){
 //						publish(e.getMessage());
