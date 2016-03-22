@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -117,6 +119,30 @@ public class GUI {
 	JTextField apiF = new JTextField();
 	
 	JLabel qfL = new JLabel("Query refinements:");
+	
+	{
+		qfL.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				
+				//temporary setups
+				
+				apiF.setText("qYEuct4rp");
+				qfF1.setText("LANGUAGE");
+				qfF2.setText("hu");
+				magyarlancF.setText("E:\\Dokumentumok\\IRUN\\magyarlánc\\magyarlanc-3.0.jar");
+				
+				//
+			}
+			
+
+
+		});
+		
+		
+		
+	}
 	JTextField qfF1 = new JTextField();
 	JLabel qfL2 = new JLabel(":");
 	JTextField qfF2 = new JTextField();
@@ -294,6 +320,8 @@ public class GUI {
 	
 	public GUI() {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+
 		
 		frame.pack();
 		frame.setVisible(true);

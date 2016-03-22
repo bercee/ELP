@@ -243,6 +243,7 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 				if (isCancelled())
 					return words;
 				m.invoke(null);
+//				publish("...");
 				
 			}
 		}
@@ -260,7 +261,7 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 		publish("Doing word frequency analysis...");
 		for (int objNum = 0; objNum < parsedList.size();objNum++){
 			for (List<String> l : parsedList.get(objNum)){
-				words.addNew(l.get(1), l.get(0), objNum);
+				words.addNew(l.get(1), l.get(0), l.get(2), objNum);
 			}
 			
 		}
@@ -279,7 +280,7 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 	
 	public List<String> getFullInfo(){
 		List<String> l = new ArrayList<>();
-		l.add("[lemma]");
+		l.add("[lemma] (number of all occurrences) - word type");
 		l.add("\t[lexical form]");
 		l.add("\t\t[contanied in in object] - [how many times]");
 		l.add("");
@@ -300,8 +301,10 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 //				Matcher m = p.matcher(lemma);
 //				if (!m.find())
 //					return;
-				l.add(lemma + "  (" + t.getValue().getAllOccurrenceNum()+")");
 				Word word = words.map.get(lemma);
+				if (word.type.equals("PUNCT"))
+					return;
+				l.add(lemma + "  (" + t.getValue().getAllOccurrenceNum()+")" + "  "+word.type);
 				HashMap<String, HashMap<Integer, Integer>> lexForms = word.formsTable;
 				for (String form : lexForms.keySet()){
 					l.add(new StringBuilder("\t").append(form).toString());

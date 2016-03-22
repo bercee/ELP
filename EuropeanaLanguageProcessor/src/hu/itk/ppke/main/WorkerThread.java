@@ -5,9 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -24,6 +22,8 @@ public class WorkerThread extends Thread {
 	public WorkerThread(GUIEngine engine) {
 		this.engine = engine;
 		this.gui = engine.gui;
+		
+		
 	}
 	
 	@Override

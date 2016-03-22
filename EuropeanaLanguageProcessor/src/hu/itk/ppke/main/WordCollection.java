@@ -12,7 +12,7 @@ public class WordCollection {
 	public synchronized void addNew(String lemma, String lexicalForm, int objNum){
 		Word w = map.get(lemma);
 		if (w == null){
-			map.put(lemma, new Word(lemma, lexicalForm, objNum));
+			map.put(lemma, new Word(lemma, lexicalForm, "", objNum));
 		}else{
 			w.addLexicalForm(lexicalForm, objNum);
 		}
@@ -20,6 +20,15 @@ public class WordCollection {
 	}
 	
 
+	public synchronized void addNew(String lemma, String lexicalForm, String type, int objNum){
+		Word w = map.get(lemma);
+		if (w == null){
+			map.put(lemma, new Word(lemma, lexicalForm, type, objNum));
+		}else{
+			w.addLexicalForm(lexicalForm, objNum);
+		}
+		
+	}
 	
 	public synchronized int getSize() {
 		return map.size();
@@ -71,6 +80,7 @@ public class WordCollection {
 	class Word {
 		private int c;
 		String lemma;
+		String type;
 //		private HashSet<String> forms = new HashSet<String>();
 		HashMap<String, HashMap<Integer, Integer>> formsTable = new HashMap<String, HashMap<Integer, Integer>>();
 		
@@ -78,8 +88,9 @@ public class WordCollection {
 			this.lemma = lemma;
 		}
 		
-		public Word(String lemma, String lexForm, int objNum) {
+		public Word(String lemma, String lexForm, String type, int objNum) {
 			this.lemma = lemma;
+			this.type = type;
 			HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 			map.put(objNum, 1);
 			formsTable.put(lexForm, map);
