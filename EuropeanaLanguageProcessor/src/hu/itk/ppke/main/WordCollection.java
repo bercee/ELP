@@ -1,10 +1,17 @@
 package hu.itk.ppke.main;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class WordCollection {
+public class WordCollection implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2478433239464452565L;
+	
 	
 	TreeMap<String, Word> map = new TreeMap<String, Word>();
 	
@@ -27,7 +34,6 @@ public class WordCollection {
 		}else{
 			w.addLexicalForm(lexicalForm, objNum);
 		}
-		
 	}
 	
 	public synchronized int getSize() {
@@ -77,7 +83,12 @@ public class WordCollection {
 		return c;
 	}
 	
-	class Word {
+	class Word implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3997422079297848992L;
+		
 		private int c;
 		String lemma;
 		String type;

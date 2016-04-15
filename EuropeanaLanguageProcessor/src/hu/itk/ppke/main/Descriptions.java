@@ -96,7 +96,6 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 		this.in = in;
 		this.out = out;
 		this.format = format;
-
 		if (format == OutputFormat.SeparateFiles) {
 			if (out == null)
 				throw new FileNotFoundException("Output folder does not exist!");
@@ -110,10 +109,10 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 			}
 			if (in.isDirectory()) {
 				infiles = in.listFiles();
-				infiles = in.listFiles();
-				List<File> l = Arrays.asList(infiles);
-				l.sort(new AlfanumComparator());
-				l.toArray(infiles);
+				Arrays.sort(infiles, new AlfanumComparator());
+//				List<File> l = Arrays.asList(infiles);
+//				l.sort(new AlfanumComparator());
+//				l.toArray(infiles);
 				
 			
 				
@@ -121,7 +120,7 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 					throw new FileNotFoundException("The given folder is empty.");
 				fillObjects(infiles);
 			}else {
-				File[] ff = new File[0];
+				File[] ff = new File[1];
 				ff[0] = in;
 				fillObjects(ff);
 				
@@ -200,6 +199,7 @@ public class Descriptions extends SwingWorker<List<String>, String>{
 	}
 	@Override
 	protected List<String> doInBackground() throws Exception {
+		publish("I am working.");
 		if (isCancelled())
 			return desciptions;
 		publish("Parsing metadata...");

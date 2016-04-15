@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -15,16 +18,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.function.Consumer;
 
 import javax.swing.SwingWorker;
 
-import hu.itk.ppke.main.WordCollection.Word;
 import utils.AlfanumComparator;
 
 public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
@@ -41,14 +40,13 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 	}
 
 	private List<String> inputList = new ArrayList<>();
-	@SuppressWarnings("unused")
 	private File f;
 	private List<List<List<String>>> parsedList = new ArrayList<List<List<String>>>();
 	private volatile int status = 0;
 //	private HashSet<Word> words = new HashSet<Word>();
 //	private HashMap<Word, Word> words = new HashMap<Word, Word>();
 	private WordCollection words = new WordCollection();
-	
+	private File wordCollection;
 	private static boolean isInitialized = false;
 	
 	private String magyarlancURL;
@@ -155,10 +153,10 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 		inputList = new ArrayList<String>();
 		if (f.isDirectory()) {
 			File[] fs = f.listFiles();
-			List<File> fl = Arrays.asList(fs);
-			fl.sort(new AlfanumComparator());
+			Arrays.sort(fs,new AlfanumComparator());
 			try {
-				for (File file : fl) {
+				for (File file : fs) {
+					publish(file.toString());
 					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 					while (br.ready())
 						inputList.add(br.readLine());
@@ -177,7 +175,57 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 		loadMagyarlanc();
 
 	}
+	
+	public  MagyarlancRunner(String magyarlancURL, File dir, File wordCollection) throws Exception {
+		this.magyarlancURL = magyarlancURL;
+		this.f = dir;
+		this.wordCollection = wordCollection;
+		loadMagyarlanc();
+		if (wordCollection.isFile()){
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(wordCollection));
+			Object o = ois.readObject();
+			ois.close();
+			if (o instanceof WordCollection) {
+				WordCollection wc = (WordCollection) o;
+				words = wc;
+			}else {
+				throw new Exception("Word collection file is wrong.");
+			}
+		}
+		
+	}
+	
+	public void processFiles(int start, int end) throws Exception{
+		init();
+		if (!f.isDirectory())
+			throw new Exception("Given directory does not exist,");
+		for (int n = start; n <= end; n++){
+			File file = new File(f.getAbsolutePath(), "Description_"+n+".txt");
+			publish(file.getName());
+			if (file.isFile()){
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+				String line = ""; 
+				while (br.ready())
+					line += br.readLine() + " ";
+				br.close();
+				List<List<String>> list = getParsedSentence(line);
+				for (List<String> l : list) {
+					words.addNew(l.get(1), l.get(0), l.get(2), n);
+				}
 
+			}else {
+				publish("File does not exist: "+file.getName());
+			}
+		}
+	}
+	
+	public void printWordCollection() throws IOException{
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(wordCollection));
+		oos.writeObject(words);
+		oos.flush();
+		oos.close();
+		publish("Word collection is written to file.");
+	}
 
 	/**
 	 * This method parses a line and returns a two-dimensional array with the
@@ -237,19 +285,20 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 		if (isCancelled())
 			return words;
 		firePropertyChange("progress", 1, 0);
-		publish("Initializing magyarlánc...");	
-		if (!isInitialized){
-			isInitialized = true;
-			for (Method m : initMethods){
-				if (isCancelled())
-					return words;
-				m.invoke(null);
-//				publish("...");
-				
-			}
-		}
-		getInstance.invoke(null);
-		publish("Initialization done.");
+//		publish("Initializing magyarlánc...");	
+//		if (!isInitialized){
+//			isInitialized = true;
+//			for (Method m : initMethods){
+//				if (isCancelled())
+//					return words;
+//				m.invoke(null);
+////				publish("...");
+//				
+//			}
+//		}
+//		getInstance.invoke(null);
+//		publish("Initialization done.");
+		init();
 		int c = 1;
 		for (String s : inputList){
 			if (isCancelled())
@@ -264,83 +313,43 @@ public class MagyarlancRunner extends SwingWorker<WordCollection, String>{
 			for (List<String> l : parsedList.get(objNum)){
 				words.addNew(l.get(1), l.get(0), l.get(2), objNum);
 			}
-			
 		}
 		publish("NLP done.");
 		
 		return words;
 	}
 	
-	public List<String> getBasicInfo(){
-		List<String> l = new ArrayList<>();
-		l.add("Number of words: "+words.getSize());
-		l.add("Number of words with at least 2 different lexical forms: "+words.getWordsWithDiffLexForm());
-		l.add("Number of words with at least 2 different lexical forms that occur in different objects: "+words.getWordsWihtAmbigousOccurrence());
-		return l;
-	}
-	
-	public List<String> getFullInfo(){
-		List<String> l = new ArrayList<>();
-		l.add("[lemma] (number of all occurrences) - word type");
-		l.add("\t[lexical form]");
-		l.add("\t\t[contanied in in object] - [how many times]");
-		l.add("");
-		
-		words.map.entrySet().stream()
-		.sorted(new Comparator<Entry<String, Word>>() {
 
-			@Override
-			public int compare(Entry<String, Word> o1, Entry<String, Word> o2) {
-				return Integer.compare(o2.getValue().getAllOccurrenceNum(), o1.getValue().getAllOccurrenceNum());
-			}
-		}).forEach(new Consumer<Entry<String,Word>>() {
-
-			@Override
-			public void accept(Entry<String, Word> t) {
-				String lemma = t.getKey();
-//				Pattern p = Pattern.compile("^[a-zA-Z]");
-//				Matcher m = p.matcher(lemma);
-//				if (!m.find())
-//					return;
-				Word word = words.map.get(lemma);
-				if (word.type.equals("PUNCT"))
-					return;
-				l.add(lemma + "  (" + t.getValue().getAllOccurrenceNum()+")" + "  "+word.type);
-				HashMap<String, HashMap<Integer, Integer>> lexForms = word.formsTable;
-				for (String form : lexForms.keySet()){
-					l.add(new StringBuilder("\t").append(form).toString());
-					for (Integer objNum : lexForms.get(form).keySet()){
-						l.add(new StringBuilder("\t\t").append(objNum).append(" - ").append(lexForms.get(form).get(objNum)).toString());
-					}
-				}
-			}
-		});
-		
-		
-//		for (String lemma : words.map.keySet()){
-//			Pattern p = Pattern.compile("^[a-zA-Z]");
-//			Matcher m = p.matcher(lemma);
-//			if (!m.find())
-//				continue;
-//			l.add(lemma);
-//			Word word = words.map.get(lemma);
-//			HashMap<String, HashMap<Integer, Integer>> lexForms = word.formsTable;
-//			for (String form : lexForms.keySet()){
-//				l.add(new StringBuilder("\t").append(form).toString());
-//				for (Integer objNum : lexForms.get(form).keySet()){
-//					l.add(new StringBuilder("\t\t").append(objNum).append(" - ").append(lexForms.get(form).get(objNum)).toString());
-//				}
-//			}
-//			
-//		}
-		
-		return l;
-	}
 	
 	@Override
 	protected void process(List<String> chunks) {
 		for (String s : chunks)
 			System.err.println(s);
+	}
+	
+	private void init() throws Exception{
+		if (!isInitialized){
+			publish("Initializing magyarlánc...");
+			isInitialized = true;
+			for (Method m : initMethods){
+				m.invoke(null);
+				
+			}
+			getInstance.invoke(null);
+			publish("Initialization done.");
+		}
+	}
+
+
+	public List<String> getBasicInfo() {
+		WCManipulator wcm = new WCManipulator(words);
+		return wcm.getBasicInfo();
+	}
+
+
+	public List<String> getFullInfo() {
+		WCManipulator wcm = new WCManipulator(words);
+		return wcm.getFullInfo();
 	}
 	
 //	private static void initialize(){
